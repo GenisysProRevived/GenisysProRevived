@@ -19,8 +19,6 @@
  *
 */
 
-declare(strict_types=1);
-
 namespace pocketmine;
 
 use pocketmine\block\Bed;
@@ -641,8 +639,6 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 	}
 
 	public function sendCommandData(){
-		//TODO: this needs fixing
-		/*
 		$data = [];
 		foreach($this->server->getCommandMap()->getCommands() as $command){
 			if(count($cmdData = $command->generateCustomCommandData($this)) > 0){
@@ -655,8 +651,7 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 			$pk = new AvailableCommandsPacket();
 			$pk->commands = json_encode($data);
 			$this->dataPacket($pk);
-		}*/
-
+		}
 	}
 
 	/**
@@ -3344,7 +3339,7 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 					}
 
 					$this->server->getPluginManager()->callEvent($ev = new PlayerQuitEvent($this, $message, $reason));
-					if($ev->getQuitMessage() != ""){
+					if($ev->getQuitMessage() != "" or $ev->getQuitMessage() != " "){
 						$this->server->broadcastMessage($ev->getQuitMessage());
 					}
 				}
