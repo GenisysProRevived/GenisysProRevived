@@ -181,6 +181,10 @@ auto-updater:
 timings:
  #Choose the host to use for viewing your timings results.
  host: timings.pmmp.io
+ 
+plugin:
+ #loads incompatible api!
+ load-all-plugins: true
 
 console:
  #Choose whether to enable server stats reporting on the console title.
