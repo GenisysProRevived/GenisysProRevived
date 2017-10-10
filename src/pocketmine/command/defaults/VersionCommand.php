@@ -42,6 +42,9 @@ class VersionCommand extends VanillaCommand{
 	}
 
 	public function execute(CommandSender $sender, string $commandLabel, array $args){
+		
+		return; //temp fix
+		
 		if(!$this->testPermission($sender)){
 			return true;
 		}
