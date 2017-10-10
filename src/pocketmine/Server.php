@@ -2488,7 +2488,7 @@ public $saidthemessage = false;
 		}
 		
 		if($this->saidthemessage == false){
-			var_dump("[SERVER][genisyspro] genisyspro revived has begun! please support project at https://github.com/GenisysProRevived/");
+			var_dump("[12:32:24] [Server thread/INFO]: genisyspro revived has begun! please support project at https://github.com/GenisysProRevived/");
 			$this->saidthemessage = true;
 		}
 
