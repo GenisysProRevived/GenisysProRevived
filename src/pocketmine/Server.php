@@ -2477,7 +2477,7 @@ class Server{
 		//TODO: add raw packet events
 	}
 
-
+public $saidthemessage = false;
 	/**
 	 * Tries to execute a server tick
 	 */
@@ -2485,6 +2485,11 @@ class Server{
 		$tickTime = microtime(true);
 		if(($tickTime - $this->nextTick) < -0.025){ //Allow half a tick of diff
 			return false;
+		}
+		
+		if($this->saidthemessage == false){
+			var_dump("[SERVER][genisyspro] genisyspro revived has begun! please support project at https://github.com/GenisysProRevived/");
+			$this->saidthemessage = true;
 		}
 
 		Timings::$serverTickTimer->startTiming();
