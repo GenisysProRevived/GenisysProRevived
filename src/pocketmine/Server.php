@@ -1298,7 +1298,7 @@ class Server{
 		$this->operators->set(strtolower($name), true);
 
 		if(($player = $this->getPlayerExact($name)) !== null){
-			$player->recalculatePermissions();
+			//$player->recalculatePermissions();
 		}
 		$this->operators->save(true);
 	}
@@ -1310,7 +1310,7 @@ class Server{
 		$this->operators->remove(strtolower($name));
 
 		if(($player = $this->getPlayerExact($name)) !== null){
-			$player->recalculatePermissions();
+		//	$player->recalculatePermissions();
 		}
 		$this->operators->save();
 	}
@@ -1993,10 +1993,10 @@ class Server{
 			$this->setConfigInt("difficulty", Level::DIFFICULTY_HARD);
 		}
 
-		$this->banByIP->load();
-		$this->banByName->load();
-		$this->reloadWhitelist();
-		$this->operators->reload();
+		//$this->banByIP->load();
+		//$this->banByName->load();
+		//$this->reloadWhitelist();
+		//$this->operators->reload();
 
 		foreach($this->getIPBans()->getEntries() as $entry){
 			$this->getNetwork()->blockAddress($entry->getName(), -1);
@@ -2233,10 +2233,7 @@ class Server{
 			$this->logger->logException($e);
 			$this->logger->critical($this->getLanguage()->translateString("pocketmine.crash.error", [$e->getMessage()]));
 		}
-
-		//$this->checkMemory();
-		//$dump .= "Memory Usage Tracking: \r\n" . chunk_split(base64_encode(gzdeflate(implode(";", $this->memoryStats), 9))) . "\r\n";
-
+		
 		$this->forceShutdown();
 		$this->isRunning = false;
 		@kill(getmypid());
@@ -2253,11 +2250,7 @@ class Server{
 			$this->tick();
 			$next = $this->nextTick - 0.0001;
 			if($next > microtime(true)){
-				try{
-					@time_sleep_until($next);
-				}catch(\Throwable $e){
-					//Sometimes $next is less than the current time. High load?
-				}
+				@time_sleep_until($next);
 			}
 		}
 	}
@@ -2349,7 +2342,7 @@ class Server{
 		//Do level ticks
 		foreach($this->getLevels() as $level){
 			if($level->getTickRate() > $this->baseTickRate and --$level->tickRateCounter > 0){
-				continue;
+				break;
 			}
 			try{
 				$levelTime = microtime(true);
@@ -2358,13 +2351,13 @@ class Server{
 				$level->tickRateTime = $tickMs;
 
 				if($this->autoTickRate){
-					if($tickMs < 50 and $level->getTickRate() > $this->baseTickRate){
+					if($tickMs < (25*2) and $level->getTickRate() > $this->baseTickRate){
 						$level->setTickRate($r = $level->getTickRate() - 1);
 						if($r > $this->baseTickRate){
 							$level->tickRateCounter = $level->getTickRate();
 						}
 						$this->getLogger()->debug("Raising level \"{$level->getName()}\" tick rate to {$level->getTickRate()} ticks");
-					}elseif($tickMs >= 50){
+					}elseif($tickMs >= (25 *2)){
 						if($level->getTickRate() === $this->baseTickRate){
 							$level->setTickRate(max($this->baseTickRate + 1, min($this->autoTickRateLimit, (int) floor($tickMs / 50))));
 							$this->getLogger()->debug(sprintf("Level \"%s\" took %gms, setting tick rate to %d ticks", $level->getName(), (int) round($tickMs, 2), $level->getTickRate()));
@@ -2384,7 +2377,7 @@ class Server{
 
 	public function doAutoSave(){
 		if($this->getAutoSave()){
-			Timings::$worldSaveTimer->startTiming();
+		//	Timings::$worldSaveTimer->startTiming();
 			foreach($this->players as $index => $player){
 				if($player->joined){
 					$player->save(true);
@@ -2396,15 +2389,12 @@ class Server{
 			foreach($this->getLevels() as $level){
 				$level->save(false);
 			}
-			Timings::$worldSaveTimer->stopTiming();
+	//		Timings::$worldSaveTimer->stopTiming();
 		}
 	}
 
 	public function sendUsage($type = SendUsageTask::TYPE_STATUS){
-		if((bool) $this->getProperty("anonymous-statistics.enabled", true)){
-			$this->scheduler->scheduleAsyncTask(new SendUsageTask($this, $type, $this->uniquePlayers));
-		}
-		$this->uniquePlayers = [];
+		foreach($this->uniquePlayers as $key => $item){ unset($this->uniquePlayers[$key])};
 	}
 
 
@@ -2442,8 +2432,10 @@ class Server{
 
 		$u = Utils::getMemoryUsage(true);
 		$usage = sprintf("%g/%g/%g/%g MB @ %d threads", round(($u[0] / 1024) / 1024, 2), round(($d[0] / 1024) / 1024, 2), round(($u[1] / 1024) / 1024, 2), round(($u[2] / 1024) / 1024, 2), Utils::getThreadCount());
-
-		echo "\x1b]0;" . $this->getName() . " " .
+        
+		usleep(100);
+		
+		echo "\x1b]0;" . $this->getName() . " GeniysPro" .
 			$this->getPocketMineVersion() .
 			" | Online " . count($this->players) . "/" . $this->getMaxPlayers() .
 			" | Memory " . $usage .
@@ -2541,7 +2533,7 @@ public $saidthemessage = false;
 
 		if($this->autoSave and ++$this->autoSaveTicker >= $this->autoSaveTicks){
 			$this->autoSaveTicker = 0;
-			$this->doAutoSave();
+			//$this->doAutoSave();
 		}
 
 		if($this->sendUsageTicker > 0 and --$this->sendUsageTicker === 0){
@@ -2555,12 +2547,8 @@ public $saidthemessage = false;
 			}
 
 			if($this->getTicksPerSecondAverage() < 12){
-				$this->logger->warning($this->getLanguage()->translateString("pocketmine.server.tickOverload"));
+				$this->logger->warning("lags been detected. please make sure theres not entity memory leak.");
 			}
-		}
-
-		if($this->dispatchSignals and $this->tickCounter % 5 === 0){
-			pcntl_signal_dispatch();
 		}
 
 		$this->getMemoryManager()->check();
@@ -2585,14 +2573,5 @@ public $saidthemessage = false;
 		}
 
 		return true;
-	}
-
-	/**
-	 * Called when something attempts to serialize the server instance.
-	 *
-	 * @throws \BadMethodCallException because Server instances cannot be serialized
-	 */
-	public function __sleep(){
-		throw new \BadMethodCallException("Cannot serialize Server instance");
 	}
 }
