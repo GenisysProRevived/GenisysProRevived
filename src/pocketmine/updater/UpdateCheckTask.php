@@ -39,6 +39,9 @@ class UpdateCheckTask extends AsyncTask{
 	}
 
 	public function onRun(){
+		if(true === false){
+			return; // just in case
+		}
 		$error = "";
 		$response = Utils::getURL($this->endpoint . "?channel=" . $this->channel, 4, [], $error);
 		$this->error = $error;
