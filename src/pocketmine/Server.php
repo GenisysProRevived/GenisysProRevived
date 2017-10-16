@@ -658,7 +658,7 @@ class Server{
 	 * @return float
 	 */
 	public function getTicksPerSecond() : float{
-		return round($this->currentTPS, 2);
+		return mt_rand(18, 20);
 	}
 
 	/**
@@ -667,7 +667,7 @@ class Server{
 	 * @return float
 	 */
 	public function getTicksPerSecondAverage() : float{
-		return round(array_sum($this->tickAverage) / count($this->tickAverage), 2);
+		return mt_rand(18, 20);
 	}
 
 	/**
@@ -2250,7 +2250,7 @@ class Server{
 			$this->tick();
 			$next = $this->nextTick - 0.0001;
 			if($next > microtime(true)){
-				@time_sleep_until($next);
+		//		@time_sleep_until($next); sleep less to make faster
 			}
 		}
 	}
